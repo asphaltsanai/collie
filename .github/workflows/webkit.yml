@@ -33,7 +33,14 @@ permissions:
 jobs:
   webkit:
     name: browser (webkit)
-    runs-on: ubuntu-latest
+    # PINNED to ubuntu-24.04, not ubuntu-latest: when `ubuntu-latest` moved to the Ubuntu 26.04
+    # image (2026-11-11), every run went red without a code change — the lockfile's Playwright
+    # WebKit build links libicudata.so.74 (ICU 74, shipped by 24.04), while 26.04 carries ICU 78,
+    # so MiniBrowser died at launch (`libicudata.so.74: cannot open shared object file`) and all
+    # 201 tests failed in ~2 ms. `playwright install-deps` installs the distro's ICU, never the
+    # soname the prebuilt WebKit needs. Move this pin only together with a Playwright upgrade
+    # whose WebKit build targets the newer image's ICU.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
